@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 <head>
@@ -48,3 +49,55 @@
     </script>
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>跨境物流管理系统</title>
+    <script type="text/javascript">
+        // 获取当前路径
+        var path = window.location.pathname;
+        var hash = window.location.hash;
+        var search = window.location.search;
+        
+        // 如果是直接访问根路径，正常显示
+        if (path === '/' || path === '/index.html') {
+            // 正常加载
+        } else {
+            // 将SPA路由重定向到index.html
+            // 保存原始路径到sessionStorage
+            sessionStorage.setItem('redirect_path', path + search + hash);
+            
+            // 重定向到根路径
+            window.location.replace('/baojia/');
+        }
+    </script>
+</head>
+<body>
+    <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h1>🚚 跨境物流管理系统</h1>
+        <p>页面加载中...</p>
+        <p>如果长时间未加载，请 <a href="/baojia/">返回首页</a></p>
+    </div>
+    
+    <script>
+        // 页面加载后检查是否需要重定向
+        window.onload = function() {
+            var redirectPath = sessionStorage.getItem('redirect_path');
+            if (redirectPath) {
+                sessionStorage.removeItem('redirect_path');
+                // 使用hash方式处理SPA路由
+                if (!redirectPath.startsWith('/#/')) {
+                    var cleanPath = redirectPath.replace('/baojia', '');
+                    if (!cleanPath.startsWith('/#/')) {
+                        cleanPath = '/#/' + cleanPath.replace(/^\//, '');
+                    }
+                    window.location.replace('/baojia' + cleanPath);
+                }
+            }
+        };
+    </script>
+</body>
+</html>
+>>>>>>> ae7c4c5741e1ee3dc339ac53aea0af0d5d69c7f3
