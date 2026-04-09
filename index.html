@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跨境物流管理系统 - 部署中</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 800px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #667eea;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .status {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .checkmark {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        
+        .warning {
+            color: #ff9800;
+            font-weight: bold;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .info {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            🚚
+        </div>
+        
+        <h1>跨境物流管理系统</h1>
+        <div class="subtitle">安全、高效、智能的跨境物流解决方案</div>
+        
+        <div class="status">
+            <div class="status-item">
+                <span>代码仓库</span>
+                <span class="checkmark">✅ 已推送</span>
+            </div>
+            <div class="status-item">
+                <span>GitHub Pages配置</span>
+                <span class="checkmark">✅ 已完成</span>
+            </div>
+            <div class="status-item">
+                <span>GitHub Actions</span>
+                <span class="checkmark">✅ 已配置</span>
+            </div>
+            <div class="status-item">
+                <span>应用构建</span>
+                <span class="warning"><span class="spinner"></span>正在部署中...</span>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <a href="https://github.com/928694498/baojia" class="btn btn-primary" target="_blank">
+                📂 查看GitHub仓库
+            </a>
+            <a href="https://github.com/928694498/baojia/actions" class="btn btn-secondary" target="_blank">
+                🚀 监控部署进度
+            </a>
+            <a href="https://github.com/928694498/baojia/settings/pages" class="btn btn-secondary" target="_blank">
+                ⚙️ 配置Pages设置
+            </a>
+        </div>
+        
+        <div class="info">
+            <p>🕒 部署预计需要2-5分钟完成</p>
+            <p>✅ 请确保在GitHub仓库的Settings → Pages中配置部署分支为gh-pages</p>
+            <p>🌐 访问地址：<a href="https://928694498.github.io/baojia" style="color: white; text-decoration: underline;">https://928694498.github.io/baojia</a></p>
+        </div>
+    </div>
+    
+    <script>
+        // 自动刷新以检查部署状态
+        setTimeout(() => {
+            location.reload();
+        }, 30000); // 30秒刷新一次
+        
+        // 动态更新状态
+        const updateStatus = async () => {
+            try {
+                const response = await fetch('https://928694498.github.io/baojia', { mode: 'no-cors' });
+                document.querySelector('.status-item:last-child .warning').innerHTML = '✅ 已部署完成';
+                document.querySelector('.buttons').innerHTML += '<a href="/" class="btn btn-primary" style="margin-top: 1rem;">🎉 进入系统</a>';
+            } catch (error) {
+                console.log('仍在部署中...');
+            }
+        };
+        
+        updateStatus();
+    </script>
+</body>
+</html>

@@ -44,7 +44,6 @@ jobs:
         with:
           node-version: "18.x"
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
           
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -58,9 +57,10 @@ jobs:
         run: |
           cd frontend
           cat > .env.production << 'EOF'
-          VITE_API_URL=https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}/api
+          VITE_API_URL=https://928694498.github.io/baojia/api
           VITE_APP_TITLE=跨境物流管理系统
-          VITE_APP_VERSION=${{ github.ref_name }}
+          VITE_APP_VERSION=1.0.0
+          PUBLIC_URL=https://928694498.github.io/baojia
           EOF
           
       - name: Build application
@@ -69,6 +69,7 @@ jobs:
           npm run build
         env:
           NODE_ENV: production
+          PUBLIC_URL: https://928694498.github.io/baojia
           
       - name: Generate Sitemap
         run: |
@@ -77,35 +78,17 @@ jobs:
           <?xml version="1.0" encoding="UTF-8"?>
           <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
             <url>
-              <loc>https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}/</loc>
+              <loc>https://928694498.github.io/baojia/</loc>
               <lastmod>${{ github.event.repository.updated_at }}</lastmod>
               <changefreq>daily</changefreq>
               <priority>1.0</priority>
             </url>
             <url>
-              <loc>https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}/dashboard</loc>
-              <priority>0.8</priority>
-            </url>
-            <url>
-              <loc>https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}/products</loc>
-              <priority>0.8</priority>
-            </url>
-            <url>
-              <loc>https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}/quotes</loc>
-              <priority>0.8</priority>
-            </url>
-            <url>
-              <loc>https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}/sales</loc>
+              <loc>https://928694498.github.io/baojia/dashboard</loc>
               <priority>0.8</priority>
             </url>
           </urlset>
           EOF
-          
-      - name: Create CNAME for custom domain (optional)
-        run: |
-          if [ -n "${{ secrets.CUSTOM_DOMAIN }}" ]; then
-            echo "${{ secrets.CUSTOM_DOMAIN }}" > frontend/dist/CNAME
-          fi
           
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
