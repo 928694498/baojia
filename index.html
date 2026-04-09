@@ -3,253 +3,1367 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>跨境物流管理系统</title>
+    <title>跨境物流报价平台 - 产品查询·智能报价·在线售卖</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#f0f2f5;color:#333;line-height:1.6}
-        
-        .login-container{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);position:relative;overflow:hidden}
-        .login-box{background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-radius:20px;padding:40px;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
-        .logo-section{text-align:center;margin-bottom:30px}
-        .logo-icon{width:80px;height:80px;margin:0 auto 15px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;color:white;box-shadow:0 10px 30px rgba(102,126,234,0.4)}
-        .logo-title{font-size:24px;font-weight:bold;color:#333;margin-bottom:5px}
-        .logo-subtitle{font-size:14px;color:#888}
-        .form-group{margin-bottom:20px}
-        .form-group label{display:block;margin-bottom:8px;font-weight:500;color:#555;font-size:14px}
-        .form-group input{width:100%;padding:12px 16px;border:2px solid #e1e5eb;border-radius:10px;font-size:15px;outline:none;transition:border-color 0.3s}
-        .form-group input:focus{border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.1)}
-        .form-options{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;font-size:13px}
-        .remember-me{display:flex;align-items:center;gap:6px;cursor:pointer}
-        .forgot-password{color:#667eea;text-decoration:none;font-weight:500}
-        .forgot-password:hover{text-decoration:underline}
-        .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.3s}
-        .login-btn:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(102,126,234,0.4)}
-        .divider{text-align:center;margin:25px 0;position:relative;color:#aaa;font-size:13px}
-        .divider::before,.divider::after{content:'';position:absolute;top:50%;width:35%;height:1px;background:#ddd}
-        .divider::before{left:0}.divider::after{right:0}
-        .social-login{display:flex;gap:12px}
-        .social-btn{flex:1;padding:12px;border:2px solid #e1e5eb;border-radius:10px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px}
-        .social-btn:hover{border-color:#667eea;background:#f8f9ff}
+        :root {
+            --primary: #1890ff;
+            --primary-dark: #096dd9;
+            --success: #52c41a;
+            --warning: #faad14;
+            --danger: #ff4d4f;
+            --bg: #f5f7fa;
+            --card-bg: #fff;
+            --text: #333;
+            --text-secondary: #666;
+            --border: #e8e8e8;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+            --radius: 12px;
+        }
 
-        .app-container{display:none;min-height:100vh}
-        .app-container.active{display:block}
-        .sidebar{position:fixed;left:0;top:0;width:240px;height:100vh;background:linear-gradient(180deg,#001529 0%,#003a70 100%);color:white;z-index:1000;overflow-y:auto;transition:all 0.3s}
-        .sidebar.collapsed{width:80px}
-        .sidebar-header{height:64px;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid rgba(255,255,255,0.1);gap:12px}
-        .sidebar-logo{width:32px;height:32px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;color:white}
-        .sidebar-title{font-size:16px;font-weight:bold;white-space:nowrap;overflow:hidden}
-        .sidebar.collapsed .sidebar-title{opacity:0;width:0}
-        .sidebar-menu{padding:12px 0}
-        .menu-item{padding:12px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;border-left:3px solid transparent;color:rgba(255,255,255,0.75);transition:all 0.3s}
-        .menu-item:hover,.menu-item.active{background:rgba(255,255,255,0.08);color:white;border-left-color:#667eea}
-        .menu-icon{width:20px;text-align:center;flex-shrink:0}
-        .menu-text{white-space:nowrap;overflow:hidden}
-        .sidebar.collapsed .menu-text{opacity:0;width:0}
-        .main-content{margin-left:240px;min-height:100vh;background:#f0f2f5;transition:margin-left 0.3s}
-        .main-content.expanded{margin-left:80px}
-        .top-nav{height:64px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:0 1px 4px rgba(0,21,41,0.08);position:sticky;top:0;z-index:100}
-        .nav-left,.nav-right{display:flex;align-items:center;gap:16px}
-        .toggle-sidebar{width:32px;height:32px;border:none;background:none;cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#333}
-        .toggle-sidebar:hover{background:#f0f2f5}
-        .breadcrumb{font-size:14px;color:#666}
-        .user-info{display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 12px;border-radius:8px}
-        .user-info:hover{background:#f0f2f5}
-        .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:600}
-        .username{font-size:14px;font-weight:500}
-        .page-content{padding:24px}
-        .page-header{margin-bottom:24px}
-        .page-title{font-size:24px;font-weight:600;color:#333;margin-bottom:8px}
-        .page-description{font-size:14px;color:#888}
-        .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:24px}
-        .card{background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:all 0.3s}
-        .card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);transform:translateY(-2px)}
-        .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-        .card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
-        .icon-blue{background:#e6f7ff;color:#1890ff}.icon-green{background:#f6ffed;color:#52c41a}.icon-orange{background:#fff7e6;color:#fa8c16}.icon-purple{background:#f9f0ff;color:#722ed1}
-        .card-value{font-size:32px;font-weight:700;color:#333}
-        .card-label{font-size:14px;color:#888;margin-top:4px}
-        .table-container{background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
-        .table-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-        .table-title{font-size:16px;font-weight:600}
-        table{width:100%;border-collapse:collapse}
-        th,td{padding:12px 16px;text-align:left;border-bottom:1px solid #f0f0f0}
-        th{background:#fafafa;font-weight:600;color:#666;font-size:13px}
-        tr:hover td{background:#fafafa}
-        .status-badge{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500}
-        .status-success{background:#f6ffed;color:#52c41a}.status-warning{background:#fffbe6;color:#faad14}.status-error{background:#fff2f0;color:#ff4d4f}.status-processing{background:#e6f7ff;color:#1890ff}
-        .hidden{display:none!important}.fade-in{animation:fadeIn 0.3s ease-in-out}
-        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        @media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.mobile-open{transform:translateX(0)}.main-content{margin-left:0!important}.cards-grid{grid-template-columns:1fr}}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 0 40px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .logo i { color: var(--primary); font-size: 28px; }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.75);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(24,144,255,0.2);
+            color: #fff;
+        }
+
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .login-btn-nav {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .login-btn-nav:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+        /* 主容器 */
+        .main-container {
+            margin-top: 64px;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* 页面 */
+        .page { display: none; padding: 30px; max-width: 1400px; margin: 0 auto; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 首页Hero */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 80px 40px;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.05)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+        }
+
+        .hero h1 { font-size: 42px; margin-bottom: 16px; position: relative; }
+        .hero p { font-size: 18px; opacity: 0.9; max-width: 600px; margin: 0 auto 32px; position: relative; }
+
+        /* 搜索框 */
+        .search-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 8px;
+            display: flex;
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .search-box select, .search-box input {
+            border: none;
+            outline: none;
+            padding: 14px 18px;
+            font-size: 15px;
+            background: transparent;
+        }
+
+        .search-box select { width: 150px; border-right: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; }
+        .search-box input { flex: 1; }
+        .search-box button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 14px 36px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .search-box button:hover { background: var(--primary-dark); transform: scale(1.02); }
+
+        /* 统计卡片 */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin: -40px 30px 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #fff;
+        }
+
+        .stat-icon.blue { background: linear-gradient(135deg, #1890ff, #096dd9); }
+        .stat-icon.green { background: linear-gradient(135deg, #52c41a, #389e0d); }
+        .stat-icon.orange { background: linear-gradient(135deg, #faad14, #d48806); }
+        .stat-icon.purple { background: linear-gradient(135deg, #722ed1, #531dab); }
+
+        .stat-info h3 { font-size: 28px; font-weight: 700; color: var(--text); }
+        .stat-info p { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+
+        /* 热门线路 */
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i { color: var(--primary); }
+
+        .routes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .route-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .route-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+            border-color: var(--primary);
+        }
+
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .route-path {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .route-arrow {
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .route-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .route-badge.hot { background: linear-gradient(135deg, #ff4d4f, #cf1322); }
+        .route-badge.fast { background: linear-gradient(135deg, #faad14, #d48806); }
+        .route-badge.cheap { background: linear-gradient(135deg, #52c41a, #389e0d); }
+
+        .route-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .route-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .route-detail-item i { color: var(--primary); width: 16px; }
+
+        .route-price {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--danger);
+        }
+
+        .price-value small { font-size: 14px; font-weight: 400; color: var(--text-secondary); }
+
+        .quote-btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .quote-btn:hover { background: var(--primary-dark); }
+
+        /* 产品查询页面 */
+        .query-filters {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .filter-group { flex: 1; min-width: 180px; }
+
+        .filter-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .filter-group select, .filter-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .filter-group select:focus, .filter-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(24,144,255,0.1);
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .product-item {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-columns: 280px 1fr auto;
+            gap: 24px;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .product-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .product-info h3 { font-size: 18px; margin-bottom: 8px; }
+        .product-tag {
+            display: inline-block;
+            background: #e6f7ff;
+            color: var(--primary);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 6px;
+        }
+
+        .product-features {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .feature-item i { color: var(--success); }
+
+        .product-price-section { text-align: right; }
+        .product-price { font-size: 26px; font-weight: 700; color: var(--danger); }
+        .product-price-unit { font-size: 13px; color: var(--text-secondary); }
+        .product-actions { margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end; }
+
+        /* 报价页面 */
+        .quote-form-container {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+        }
+
+        .quote-form {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .form-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-title i { color: var(--primary); }
+
+        .form-group { margin-bottom: 20px; }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .form-group label .required { color: var(--danger); margin-left: 2px; }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group textarea { resize: vertical; min-height: 80px; }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(24,144,255,0.1);
+            outline: none;
+        }
+
+        .quote-result {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .quote-option {
+            background: #fafafa;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .quote-option:hover { border-color: var(--primary); background: #f0f7ff; }
+        .quote-option.selected { border-color: var(--primary); background: #e6f7ff; }
+
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .option-name { font-size: 17px; font-weight: 600; }
+        .option-price { font-size: 22px; font-weight: 700; color: var(--danger); }
+
+        .option-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* 售卖/购买页面 */
+        .shop-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 24px;
+        }
+
+        .shop-sidebar {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 84px;
+        }
+
+        .sidebar-section { margin-bottom: 24px; }
+
+        .sidebar-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .category-list { list-style: none; }
+
+        .category-list li {
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+        }
+
+        .category-list li:hover, .category-list li.active {
+            background: #e6f7ff;
+            color: var(--primary);
+        }
+
+        .category-count {
+            margin-left: auto;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .shop-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+        }
+
+        .shop-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+        }
+
+        .shop-card-img {
+            height: 180px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 56px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .shop-card-body { padding: 20px; }
+
+        .shop-card-body h3 { font-size: 17px; margin-bottom: 8px; }
+        .shop-card-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .shop-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shop-price { font-size: 22px; font-weight: 700; color: var(--danger); }
+        .buy-btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .buy-btn:hover { background: var(--primary-dark); }
+
+        /* 订单弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn { from { transform: scale(0.95) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 { font-size: 18px; }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover { color: var(--text); }
+
+        .modal-body { padding: 24px; }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-cancel {
+            background: #fff;
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .quote-form-container { grid-template-columns: 1fr; }
+            .shop-layout { grid-template-columns: 1fr; }
+            .shop-sidebar { position: static; }
+            .product-item { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0 16px; }
+            .nav-links { display: none; }
+            .hero h1 { font-size: 28px; }
+            .stats-row { grid-template-columns: 1fr; margin-left: 16px; margin-right: 16px; }
+            .page { padding: 16px; }
+            .routes-grid { grid-template-columns: 1fr; }
+            .shop-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-globe-americas"></i>
+            跨境物流报价平台
+        </div>
+        <div class="nav-links">
+            <a href="#" class="nav-link active" data-page="home"><i class="fas fa-home"></i> 首页</a>
+            <a href="#" class="nav-link" data-page="products"><i class="fas fa-search"></i> 产品查询</a>
+            <a href="#" class="nav-link" data-page="quote"><i class="fas fa-calculator"></i> 在线报价</a>
+            <a href="#" class="nav-link" data-page="shop"><i class="fas fa-store"></i> 产品购买</a>
+        </div>
+        <div class="user-area">
+            <button class="login-btn-nav" onclick="showLogin()"><i class="fas fa-user"></i> 登录 / 注册</button>
+        </div>
+    </nav>
 
-<div id="loginPage" class="login-container">
-    <div class="login-box">
-        <div class="logo-section">
-            <div class="logo-icon"><i class="fas fa-truck"></i></div>
-            <h1 class="logo-title">跨境物流管理系统</h1>
-            <p class="logo-subtitle">安全、高效、智能的跨境物流解决方案</p>
+    <div class="main-container">
+        <!-- 首页 -->
+        <div id="home" class="page active">
+            <!-- Hero区域 -->
+            <div class="hero">
+                <h1><i class="fas fa-shipping-fast"></i> 跨境物流一站式服务平台</h1>
+                <p>全球物流渠道查询、实时运费报价、在线下单购买，让跨境发货更简单、更透明</p>
+                <div class="search-box">
+                    <select id="homeSearchType">
+                        <option value="all">全部类型</option>
+                        <option value="express">国际快递</option>
+                        <option value="air">空运专线</option>
+                        <option value="sea">海运专线</option>
+                        <option value="rail">中欧铁路</option>
+                    </select>
+                    <input type="text" placeholder="输入目的地国家或地区，如：美国、英国、日本..." id="homeSearchInput">
+                    <button onclick="quickSearch()"><i class="fas fa-search"></i> 查询报价</button>
+                </div>
+            </div>
+
+            <!-- 统计数据 -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-route"></i></div>
+                    <div class="stat-info"><h3>230+</h3><p>覆盖国家/地区</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-truck"></i></div>
+                    <div class="stat-info"><h3>50+</h3><p>物流渠道</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-box"></i></div>
+                    <div class="stat-info"><h3>98.5%</h3><p>发货成功率</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-smile"></i></div>
+                    <div class="stat-info"><h3>50万+</h3><p>服务客户数</p></div>
+                </div>
+            </div>
+
+            <!-- 热门线路 -->
+            <div style="padding: 0 30px;">
+                <div class="section-title"><i class="fas fa-fire"></i> 热门物流线路</div>
+                <div class="routes-grid" id="hotRoutes"></div>
+
+                <div class="section-title" style="margin-top:40px;"><i class="fas fa-star"></i> 推荐服务</div>
+                <div class="routes-grid" id="recommendedServices"></div>
+            </div>
         </div>
-        <form id="loginForm">
-            <div class="form-group">
-                <label>用户名 / 邮箱</label>
-                <input type="text" id="username" placeholder="请输入用户名或邮箱" value="admin">
+
+        <!-- 产品查询页 -->
+        <div id="products" class="page">
+            <div class="section-title"><i class="fas fa-search"></i> 物流产品查询</div>
+            
+            <div class="query-filters">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>运输方式</label>
+                        <select id="filterType">
+                            <option value="">全部</option>
+                            <option value="express">国际快递</option>
+                            <option value="air">空运专线</option>
+                            <option value="sea">海运专线</option>
+                            <option value="rail">中欧铁路</option>
+                            <option value="small">小包专线</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>始发地</label>
+                        <select id="filterOrigin">
+                            <option value="">全部</option>
+                            <option value="cn">中国大陆</option>
+                            <option value="hk">香港</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>目的地</label>
+                        <select id="filterDest">
+                            <option value="">全部</option>
+                            <option value="us">美国</option>
+                            <option value="uk">英国</option>
+                            <option value="eu">欧洲</option>
+                            <option value="jp">日本</option>
+                            <option value="kr">韩国</option>
+                            <option value="sea">东南亚</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>时效要求</label>
+                        <select id="filterTime">
+                            <option value="">不限</option>
+                            <option value="3-5">3-5天（加急）</option>
+                            <option value="5-7">5-7天（标准）</option>
+                            <option value="7-10">7-10天（经济）</option>
+                            <option value="10+">10天以上（特惠）</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>&nbsp;</label>
+                        <button class="btn-primary" onclick="filterProducts()" style="width:100%;padding:11px;">
+                            <i class="fas fa-search"></i> 搜索
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>密码</label>
-                <input type="password" id="password" placeholder="请输入密码" value="admin123">
-            </div>
-            <div class="form-options">
-                <label class="remember-me"><input type="checkbox" checked> <span>记住登录状态</span></label>
-                <a href="#" class="forgot-password">忘记密码？</a>
-            </div>
-            <button type="submit" class="login-btn"><i class="fas fa-sign-in-alt"></i> 登录系统</button>
-        </form>
-        <div class="divider">其他登录方式</div>
-        <div class="social-login">
-            <button class="social-btn" title="微信登录"><i class="fab fa-weixin" style="color:#07c160"></i></button>
-            <button class="social-btn" title="QQ登录"><i class="fab fa-qq" style="color:#12b7f5"></i></button>
-            <button class="social-btn" title="企业微信"><i class="fab fa-alipay" style="color:#1677ff"></i></button>
+
+            <div class="product-list" id="productList"></div>
         </div>
-        <p style="text-align:center;margin-top:20px;color:#999;font-size:12px">&copy; 2024 跨境物流管理系统 v1.0.0</p>
+
+        <!-- 报价页 -->
+        <div id="quote" class="page">
+            <div class="section-title"><i class="fas fa-calculator"></i> 在线运费报价</div>
+            
+            <div class="quote-form-container">
+                <div class="quote-form">
+                    <div class="form-title"><i class="fas fa-edit"></i> 报价信息</div>
+                    
+                    <div class="form-group">
+                        <label>寄件方式 <span class="required">*</span></label>
+                        <select id="qChannel">
+                            <option value="">请选择</option>
+                            <option value="dhl">DHL国际快递</option>
+                            <option value="ups">UPS国际快递</option>
+                            <option value="fedex">FedEx联邦快递</option>
+                            <option value="emsems">EMS/ePacket</option>
+                            <option value="air-us">中美空运专线</option>
+                            <option value="air-eu">中欧空运专线</option>
+                            <option value="sea-us">中美海运专线</option>
+                            <option value="sea-eu">中欧海运专线</option>
+                            <option value="rail">中欧铁路快线</option>
+                            <option value="small">小包专线</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>始发地 <span class="required">*</span></label>
+                        <select id="qOrigin">
+                            <option value="cn_shenzhen">深圳</option>
+                            <option value="cn_guangzhou">广州</option>
+                            <option value="cn_yiwu">义乌</option>
+                            <option value="cn_shanghai">上海</option>
+                            <option value="hk">香港</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>目的国 <span class="required">*</span></label>
+                        <select id="qDest">
+                            <option value="us">美国</option>
+                            <option value="uk">英国</option>
+                            <option value="de">德国</option>
+                            <option value="fr">法国</option>
+                            <option value="jp">日本</option>
+                            <option value="kr">韩国</option>
+                            <option value="au">澳大利亚</option>
+                            <option value="ca">加拿大</option>
+                            <option value="sg">新加坡</option>
+                            <option value="th">泰国</option>
+                            <option value="vn">越南</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>货物重量(kg) <span class="required">*</span></label>
+                        <input type="number" id="qWeight" placeholder="请输入重量" min="0.1" step="0.1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>货物尺寸(cm)</label>
+                        <div style="display:flex;gap:8px;">
+                            <input type="number" id="qLength" placeholder="长" style="width:33%" min="0">
+                            <input type="number" id="qWidth" placeholder="宽" style="width:33%" min="0">
+                            <input type="number" id="qHeight" placeholder="高" style="width:33%" min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>货物品类</label>
+                        <select id="qCategory">
+                            <option value="general">普货（无电池）</option>
+                            <option value="battery">带电产品</option>
+                            <option value="liquid">液体/粉末</option>
+                            <option value="cosmetic">化妆品</option>
+                            <option value="food">食品</option>
+                            <option value="sensitive">敏感货</option>
+                        </select>
+                    </div>
+
+                    <button class="btn-primary" onclick="calculateQuote()" style="width:100%;padding:12px;font-size:16px;">
+                        <i class="fas fa-calculator"></i> 立即计算报价
+                    </button>
+                </div>
+
+                <div class="quote-result">
+                    <div class="result-header">
+                        <h3><i class="fas fa-receipt"></i> 报价结果</h3>
+                        <span style="color:var(--text-secondary);font-size:13px;">价格仅供参考，以实际为准</span>
+                    </div>
+                    <div id="quoteResultContent">
+                        <div style="text-align:center;padding:60px 20px;color:#999;">
+                            <i class="fas fa-calculator" style="font-size:56px;display:block;margin-bottom:16px;opacity:0.3;"></i>
+                            <p>填写左侧信息后点击"立即计算报价"</p>
+                            <p style="font-size:13px;margin-top:8px;">将为您显示多种方案对比</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 产品购买页 -->
+        <div id="shop" class="page">
+            <div class="shop-layout">
+                <aside class="shop-sidebar">
+                    <div class="sidebar-section">
+                        <div class="sidebar-title"><i class="fas fa-th-large"></i> 产品分类</div>
+                        <ul class="category-list">
+                            <li class="active" onclick="filterShop(this,'all')"><i class="fas fa-cube"></i> 全部产品<span class="category-count">24</span></li>
+                            <li onclick="filterShop(this,'express')"><i class="fas fa-paper-plane"></i> 国际快递<span class="category-count">6</span></li>
+                            <li onclick="filterShop(this,'airline')"><i class="fas fa-plane"></i> 空运专线<span class="category-count">5</span></li>
+                            <li onclick="filterShop(this,'sealine')"><i class="fas fa-ship"></i> 海运专线<span class="category-count">4</span></li>
+                            <li onclick="filterShop(this,'rail')"><i class="fas fa-train"></i> 铁路专线<span class="category-count">3</span></li>
+                            <li onclick="filterShop(this,'small')"><i class="fas fa-envelope-open-text"></i> 小包专线<span class="category-count">4</span></li>
+                            <li onclick="filterShop(this,'warehouse')"><i class="fas fa-warehouse"></i> 海外仓储<span class="category-count">2</span></li>
+                        </ul>
+                    </div>
+                    <div class="sidebar-section">
+                        <div class="sidebar-title"><i class="fas fa-fire-alt"></i> 热门推荐</div>
+                        <ul class="category-list">
+                            <li><i class="fas fa-bolt" style="color:var(--warning)"></i> 中美空运专线</li>
+                            <li><i class="fas fa-bolt" style="color:var(--warning)"></i> 中欧铁路</li>
+                            <li><i class="fas fa-bolt" style="color:var(--warning)"></i> 美国小包</li>
+                        </ul>
+                    </div>
+                </aside>
+
+                <div class="shop-content">
+                    <div class="section-title"><i class="fas fa-store"></i> 物流产品商城</div>
+                    <div class="shop-grid" id="shopGrid"></div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
-<div id="appContainer" class="app-container">
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo"><i class="fas fa-truck"></i></div>
-            <span class="sidebar-title">物流管理</span>
-        </div>
-        <nav class="sidebar-menu">
-            <div class="menu-item active" data-page="dashboard"><span class="menu-icon"><i class="fas fa-tachometer-alt"></i></span><span class="menu-text">仪表板</span></div>
-            <div class="menu-item" data-page="orders"><span class="menu-icon"><i class="fas fa-clipboard-list"></i></span><span class="menu-text">订单管理</span></div>
-            <div class="menu-item" data-page="logistics"><span class="menu-icon"><i class="fas fa-boxes-stacked"></i></span><span class="menu-text">物流管理</span></div>
-            <div class="menu-item" data-page="quotes"><span class="menu-icon"><i class="fas fa-calculator"></i></span><span class="menu-text">报价管理</span></div>
-            <div class="menu-item" data-page="analytics"><span class="menu-icon"><i class="fas fa-chart-line"></i></span><span class="menu-text">数据分析</span></div>
-            <div class="menu-item" data-page="settings"><span class="menu-icon"><i class="fas fa-cog"></i></span><span class="menu-text">系统设置</span></div>
-        </nav>
-    </aside>
-    <main class="main-content" id="mainContent">
-        <nav class="top-nav">
-            <div class="nav-left">
-                <button class="toggle-sidebar" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-                <span class="breadcrumb" id="breadcrumb">首页 / 仪表板</span>
+    <!-- 购买订单弹窗 -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-shopping-cart"></i> 下单购买</h2>
+                <button class="modal-close" onclick="closeOrderModal()">&times;</button>
             </div>
-            <div class="nav-right">
-                <div class="user-info" onclick="if(confirm('确定退出登录?'))logout()">
-                    <div class="avatar" id="userAvatar">A</div>
-                    <span class="username" id="displayUsername">管理员</span>
+            <div class="modal-body">
+                <div style="background:#f9f9f9;padding:16px;border-radius:8px;margin-bottom:20px;" id="orderProductInfo"></div>
+                
+                <div class="form-group">
+                    <label>联系人 <span class="required">*</span></label>
+                    <input type="text" id="oContact" placeholder="请输入联系人姓名">
                 </div>
-            </div>
-        </nav>
-        <div class="page-content">
-            <div id="dashboardPage" class="page fade-in">
-                <div class="page-header">
-                    <h1 class="page-title">仪表板</h1>
-                    <p class="page-description">欢迎回来！以下是您的业务数据概览</p>
+                <div class="form-group">
+                    <label>联系电话 <span class="required">*</span></label>
+                    <input type="tel" id="oPhone" placeholder="请输入手机号码">
                 </div>
-                <div class="cards-grid">
-                    <div class="card"><div class="card-header"><div class="card-icon icon-blue"><i class="fas fa-box"></i></div><span style="color:#52c41a;font-size:13px"><i class="fas fa-arrow-up"></i> 12.5%</span></div><div class="card-value">1,284</div><div class="card-label">今日订单数</div></div>
-                    <div class="card"><div class="card-header"><div class="card-icon icon-green"><i class="fas fa-check-circle"></i></div><span style="color:#52c41a;font-size:13px"><i class="fas fa-arrow-up"></i> 8.3%</span></div><div class="card-value">98.5%</div><div class="card-label">发货成功率</div></div>
-                    <div class="card"><div class="card-header"><div class="card-icon icon-orange"><i class="fas fa-dollar-sign"></i></div><span style="color:#52c41a;font-size:13px"><i class="fas fa-arrow-up"></i> 23.1%</span></div><div class="card-value">89.2K</div><div class="card-label">本月营收 (元)</div></div>
-                    <div class="card"><div class="card-header"><div class="card-icon icon-purple"><i class="fas fa-users"></i></div><span style="color:#52c41a;font-size:13px"><i class="fas fa-arrow-up"></i> 5.7%</span></div><div class="card-value">3,456</div><div class="card-label">活跃客户</div></div>
+                <div class="form-group">
+                    <label>微信/邮箱</label>
+                    <input type="text" id="oWechat" placeholder="方便我们联系您">
                 </div>
-                <div class="table-container">
-                    <div class="table-header"><h3 class="table-title">最近订单</h3></div>
-                    <table>
-                        <thead><tr><th>订单号</th><th>收件人</th><th>目的地</th><th>重量</th><th>金额</th><th>状态</th></tr></thead>
-                        <tbody>
-                            <tr><td>#ORD-20240401</td><td>张三</td><td>美国洛杉矶</td><td>2.5 kg</td><td>256.00</td><td><span class="status-badge status-processing">处理中</span></td></tr>
-                            <tr><td>#ORD-20240402</td><td>李四</td><td>英国伦敦</td><td>1.8 kg</td><td>189.00</td><td><span class="status-badge status-success">已发货</span></td></tr>
-                            <tr><td>#ORD-20240403</td><td>王五</td><td>澳大利亚悉尼</td><td>3.2 kg</td><td>342.00</td><td><span class="status-badge status-success">已送达</span></td></tr>
-                            <tr><td>#ORD-20240404</td><td>赵六</td><td>加拿大温哥华</td><td>0.9 kg</td><td>98.00</td><td><span class="status-badge status-warning">待支付</span></td></tr>
-                            <tr><td>#ORD-20240405</td><td>钱七</td><td>德国柏林</td><td>4.1 kg</td><td>423.00</td><td><span class="status-badge status-error">异常</span></td></tr>
-                        </tbody>
-                    </table>
+                <div class="form-group">
+                    <label>发货地址</label>
+                    <textarea id="oAddress" placeholder="请输入您的发货地址"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>收件地址</label>
+                    <textarea id="oDestAddr" placeholder="请输入海外收件地址（姓名、地址、电话、邮编等）"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>备注信息</label>
+                    <textarea id="oRemark" placeholder="特殊要求或其他说明"></textarea>
                 </div>
             </div>
-            <div id="ordersPage" class="page hidden">
-                <div class="page-header"><h1 class="page-title">订单管理</h1><p class="page-description">管理和跟踪所有物流订单</p></div>
-                <div class="table-container">
-                    <div class="table-header"><h3 class="table-title">全部订单</h3><button class="login-btn" style="width:auto;padding:8px 20px;font-size:14px"><i class="fas fa-plus"></i> 新建订单</button></div>
-                    <table><thead><tr><th>订单号</th><th>收件人</th><th>目的地</th><th>渠道</th><th>重量</th><th>金额</th><th>状态</th></tr></thead>
-                    <tbody>
-                        <tr><td>#ORD-20240001</td><td>张三</td><td>美国洛杉矶</td><td>DHL快递</td><td>2.5 kg</td><td>256.00</td><td><span class="status-badge status-processing">处理中</span></td></tr>
-                        <tr><td>#ORD-20240002</td><td>李四</td><td>英国伦敦</td><td>EMS邮政</td><td>1.8 kg</td><td>189.00</td><td><span class="status-badge status-success">已发货</span></td></tr>
-                        <tr><td>#ORD-20240003</td><td>王五</td><td>澳大利亚悉尼</td><td>FedEx联邦</td><td>3.2 kg</td><td>342.00</td><td><span class="status-badge status-success">已送达</span></td></tr>
-                    </tbody></table>
-                </div>
-            </div>
-            <div id="logisticsPage" class="page hidden"><div class="page-header"><h1 class="page-title">物流管理</h1></div><div class="table-container"><p style="padding:40px;text-align:center;color:#999"><i class="fas fa-boxes-stacked" style="font-size:48px;display:block;margin-bottom:16px"></i>物流产品管理功能开发中...</p></div></div>
-            <div id="quotesPage" class="page hidden"><div class="page-header"><h1 class="page-title">报价管理</h1></div><div class="table-container"><p style="padding:40px;text-align:center;color:#999"><i class="fas fa-calculator" style="font-size:48px;display:block;margin-bottom:16px"></i>报价管理功能开发中...</p></div></div>
-            <div id="analyticsPage" class="page hidden">
-                <div class="page-header"><h1 class="page-title">数据分析</h1></div>
-                <div class="cards-grid">
-                    <div class="card"><div class="card-header"><div class="card-icon icon-blue"><i class="fas fa-chart-bar"></i></div></div><div class="card-value">+28%</div><div class="card-label">月增长率</div></div>
-                    <div class="card"><div class="card-header"><div class="card-icon icon-green"><i class="fas fa-globe"></i></div></div><div class="card-value">156</div><div class="card-label">服务国家/地区</div></div>
-                    <div class="card"><div class="card-header"><div class="card-icon icon-orange"><i class="fas fa-route"></i></div></div><div class="card-value">23</div><div class="card-label">合作物流商</div></div>
-                    <div class="card"><div class="card-header"><div class="card-icon icon-purple"><i class="fas fa-star"></i></div></div><div class="card-value">4.8</div><div class="card-label">客户满意度</div></div>
-                </div>
-            </div>
-            <div id="settingsPage" class="page hidden">
-                <div class="page-header"><h1 class="page-title">系统设置</h1></div>
-                <div class="table-container" style="max-width:600px"><div style="padding:20px"><div style="margin-bottom:20px"><strong>账户信息</strong><hr style="margin:10px 0;border-color:#f0f0f0"><p><strong>用户名：</strong>管理员</p><p><strong>角色：</strong>超级管理员</p></div><div><strong>系统信息</strong><hr style="margin:10px 0;border-color:#f0f0f0"><p><strong>版本：</strong>v1.0.0</p></div><br><button class="login-btn" style="background:#ff4d4f" onclick="logout()">退出登录</button></div></div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeOrderModal()">取消</button>
+                <button class="btn-success" onclick="submitOrder()"><i class="fas fa-check"></i> 提交订单</button>
             </div>
         </div>
-    </main>
-</div>
+    </div>
 
-<script>
-var currentPage='dashboard';
-var isLoggedIn=false;
-var loginPage=document.getElementById('loginPage');
-var appContainer=document.getElementById('appContainer');
-document.getElementById('loginForm').addEventListener('submit',function(e){
-    e.preventDefault();
-    var u=document.getElementById('username').value;
-    var p=document.getElementById('password').value;
-    if(u&&p){
-        var btn=this.querySelector('.login-btn');
-        btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> 登录中...';
-        btn.disabled=true;
-        setTimeout(function(){
-            isLoggedIn=true;
-            document.getElementById('displayUsername').textContent=u||'管理员';
-            document.getElementById('userAvatar').textContent=(u||'管理员')[0].toUpperCase();
-            loginPage.style.display='none';
-            appContainer.classList.add('active');
-            btn.innerHTML='<i class="fas fa-sign-in-alt"></i> 登录系统';
-            btn.disabled=false;
-        },800);
-    }else{alert('请输入用户名和密码');}
-});
-function logout(){
-    if(confirm('确定退出登录？')){
-        isLoggedIn=false;
-        appContainer.classList.remove('active');
-        loginPage.style.display='flex';
-    }
-}
-function toggleSidebar(){
-    document.getElementById('sidebar').classList.toggle('collapsed');
-    document.getElementById('mainContent').classList.toggle('expanded');
-}
-function navigateTo(name){
-    document.querySelectorAll('.page').forEach(function(p){p.classList.add('hidden')});
-    document.querySelectorAll('.menu-item').forEach(function(m){m.classList.remove('active')});
-    var pg=document.getElementById(name+'Page');
-    if(pg){pg.classList.remove('hidden');currentPage=name;}
-    var mn=document.querySelector('[data-page="'+name+'"]');
-    if(mn)mn.classList.add('active');
-    var map={dashboard:'首页/仪表板',orders:'首页/订单管理',logistics:'首页/物流管理',quotes:'首页/报价管理',analytics:'首页/数据分析',settings:'首页/系统设置'};
-    document.getElementById('breadcrumb').textContent=map[name]||'首页';
-}
-document.querySelectorAll('.menu-item').forEach(function(item){
-    item.addEventListener('click',function(){navigateTo(this.getAttribute('data-page'))});
-});
-</script>
+    <!-- 登录弹窗 -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal" style="width:420px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-circle"></i> 登录账户</h2>
+                <button class="modal-close" onclick="closeLoginModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>手机号 / 邮箱</label>
+                    <input type="text" id="lAccount" placeholder="请输入手机号或邮箱">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="lPassword" placeholder="请输入密码">
+                </div>
+                <button class="btn-primary" onclick="doLogin()" style="width:100%;padding:12px;font-size:16px;">登 录</button>
+                <p style="text-align:center;margin-top:16px;color:var(--text-secondary);font-size:14px;">还没有账号？<a href="#" style="color:var(--primary);">立即注册</a></p>
+                <div style="margin-top:24px;text-align:center;border-top:1px solid var(--border);padding-top:20px;">
+                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">第三方登录</p>
+                    <div style="display:flex;justify-content:center;gap:16px;">
+                        <button style="width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:#07c160;color:#fff;font-size:18px;cursor:pointer;"><i class="fab fa-weixin"></i></button>
+                        <button style="width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:#1296db;color:#fff;font-size:18px;cursor:pointer;"><i class="fab fa-qq"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div id="toast" style="position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 28px;border-radius:8px;z-index:9999;display:none;font-size:14px;"></div>
+
+    <script>
+        // ========== 数据 ==========
+        const hotRoutesData = [
+            { from: '中国', to: '美国', type: 'air', badge: 'hot', badgeText: '热门', price: 28, unit: '/kg', time: '5-7天', channel: '中美空运专线' },
+            { from: '中国', to: '欧洲', type: 'rail', badge: 'fast', badgeText: '快速', price: 18, unit: '/kg', time: '15-18天', channel: '中欧铁路' },
+            { from: '中国', to: '美国', type: 'sea', badge: 'cheap', badgeText: '超值', price: 6, unit: '/kg', time: '25-35天', channel: '美森快船' },
+            { from: '中国', to: '英国', type: 'express', badge: 'fast', badgeText: '加急', price: 45, unit: '/kg', time: '3-5天', channel: 'DHL特惠' },
+            { from: '中国', to: '日本', type: 'express', badge: null, badgeText: '', price: 22, unit: '/kg', time: '2-3天', channel: '中日专线' },
+            { from: '中国', to: '东南亚', type: 'small', badge: 'cheap', badgeText: '特惠', price: 0.03, unit: '/g', time: '5-8天', channel: '东南亚小包' },
+        ];
+
+        const productsData = [
+            { id: 1, name: 'DHL国际快递', tag: 'express', tags: ['全球覆盖', '时效稳定', '追踪完善'], origin: 'cn', dest: ['us','uk','eu','jp'], timeRange: '3-5工作日', features: ['220+国家地区', '实时追踪', '上门取件', '保价服务'], basePrice: 45, desc: '全球领先的国际快递服务，时效稳定可靠' },
+            { id: 2, name: 'UPS国际快递', tag: 'express', tags: ['北美优势', '大货优惠'], origin: 'cn', dest: ['us','ca','uk'], timeRange: '3-5工作日', features: ['北美最强', '大货折扣', '清关能力强', '时效保证'], basePrice: 42, desc: '北美线路首选，大货价格优势明显' },
+            { id: 3, name: 'FedEx联邦快递', tag: 'express', tags: ['亚洲网络', '电商专享'], origin: 'cn', dest: ['us','jp','kr','sea'], timeRange: '3-5工作日', features: ['亚太网络强', '电商专线', '周末派送', '免费包装'], basePrice: 43, desc: '亚太地区网络发达，适合跨境电商' },
+            { id: 4, name: 'EMS/ePacket', tag: 'express', tags: ['清关便利', '价格实惠'], origin: 'cn', dest: ['us','uk','eu','ru','other'], timeRange: '7-15工作日', features: ['邮政渠道', '清关便捷', '价格便宜', '通关率高'], basePrice: 65, desc: '邮政渠道，清关便利，适合敏感货品' },
+            { id: 5, name: '中美空运专线', tag: 'airline', tags: ['直飞航班', '时效保障'], origin: 'cn', dest: ['us'], timeRange: '5-7工作日', features: ['直飞不转机', '固定舱位', '双清包税', '时效稳定'], basePrice: 28, desc: '中美直飞空运专线，稳定快捷' },
+            { id: 6, name: '中欧空运专线', tag: 'airline', tags: ['欧洲全境', '包税专线'], origin: 'cn', dest: ['de','fr','uk','eu'], timeRange: '7-10工作日', features: ['覆盖欧洲主要国家', '包税到门', 'DDP服务', '仓储分拣'], basePrice: 32, desc: '中欧空运包税专线，DDP到门' },
+            { id: 7, name: '中日韩空运', tag: 'airline', tags: ['亚洲极速', '次日达'], origin: 'cn', dest: ['jp','kr'], timeRange: '2-3工作日', features: ['亚洲最快', '次日达服务', '高频次航班', '小包裹优惠'], basePrice: 18, desc: '中日韩亚洲区域内极速空运服务' },
+            { id: 8, name: '东南亚空运', tag: 'airline', tags: ['东南亚', '性价比高'], origin: 'cn', dest: ['sea'], timeRange: '3-5工作日', features: ['覆盖东盟10国', '价格实惠', '每日航班', '操作简便'], basePrice: 12, desc: '东南亚全覆盖空运服务' },
+            { id: 9, name: '中美海运专线', tag: 'sealine', tags: ['超大货量', '超低价格'], origin: 'cn', dest: ['us'], timeRange: '25-35天', features: ['美森/以星/长荣', '超大货量', '超低运费', '整柜/拼箱'], basePrice: 6, desc: '中美海运，美森快船等优质船期' },
+            { id: 10, name: '中欧海运专线', tag: 'sealine', tags: ['FBA头程', '整柜拼箱'], origin: 'cn', dest: ['de','fr','uk','eu'], timeRange: '30-40天', features: ['FBA头程', '海卡派送', '整柜/拼箱', '双清包税'], basePrice: 8, desc: '中欧海运FBA头程，海卡派送到门' },
+            { id: 11, name: '美西快船', tag: 'sealine', tags: ['时效较快', '仓位保障'], origin: 'cn', dest: ['us'], timeRange: '15-20天', features: ['美森快船', '准点率高', '仓位保障', '末端FedEx'], basePrice: 12, desc: '美森快船，时效接近空运价格更低' },
+            { id: 12, name: '中欧铁路', tag: 'rail', tags: ['一带一路', '时效稳定'], origin: 'cn', dest: ['de','fr','eu'], timeRange: '15-18天', features: ['一带一路', '班列稳定', '比海运快', '比空运便宜'], basePrice: 18, desc: '中欧班列，连接中国与欧洲的陆路通道' },
+            { id: 13, name: '中俄铁路', tag: 'rail', tags: ['俄罗斯', '全境覆盖'], origin: 'cn', dest: ['ru'], timeRange: '12-15天', features: ['俄罗斯全境', '莫斯科枢纽', '清关专业', '俄语客服'], basePrice: 15, desc: '中俄铁路专线，俄罗斯全境可达' },
+            { id: 14, name: '中亚铁路', tag: 'rail', tags: ['五斯坦国', '陆运通道'], origin: 'cn', dest: ['other'], timeRange: '10-15天', features: ['哈萨克斯坦', '乌兹别克等', '陆运通道', '边境口岸'], basePrice: 10, desc: '中亚五国铁路货运通道' },
+            { id: 15, name: 'AliExpress无忧', tag: 'small', tags: ['速卖通对接', '线上发货'], origin: 'cn', dest: ['us','eu','ru','sea'], timeRange: '15-35天', features: ['速卖通对接', '一键下单', '线上跟踪', '纠纷处理'], basePrice: 80, desc: '速卖通官方合作物流，线上无缝对接' },
+            { id: 16, name: 'EUB小包', tag: 'small', tags: ['欧盟优先', '价格极低'], origin: 'cn', dest: ['eu'], timeRange: '7-15工作日', features: ['欧盟27国', '价格极轻', '2kg以内', '通关率高'], basePrice: 70, desc: '邮政EUB小包，发往欧盟的最低成本选择' },
+            { id: 17, name: 'SGL小包', tag: 'small', tags: ['全球小包', '挂号服务'], origin: 'cn', dest: ['us','uk','eu','jp','other'], timeRange: '7-20工作日', features: ['全球可达', '挂号可查', '丢失赔偿', '低价首选'], basePrice: 0.04, isPerGram: true, desc: 'SGL全球小包挂号服务，低价首选' },
+            { id: 18, name: '云途物流', tag: 'small', tags: ['跨境专线', '时效较好'], origin: 'cn', dest: ['us','eu','uk'], timeRange: '7-12工作日', features: ['跨境专线', '时效优于邮', '全程追踪', '价格适中'], basePrice: 60, desc: '云途跨境专线小包，时效好于传统邮政' },
+        ];
+
+        const shopProductsData = [
+            { id: 1, name: 'DHL国际快递-全球特惠', category: 'express', icon: 'fa-paper-plane', color: '#FFCC00', desc: '覆盖220+国家和地区，3-5工作日达', price: 45, unit: '/kg起', features: ['全球覆盖', '3-5天达', '上门取件'] },
+            { id: 2, name: 'UPS国际快递-北美专线', category: 'express', icon: 'fa-box', color: '#FF6600', desc: '北美最强线路，大货享折扣', price: 38, unit: '/kg起', features: ['北美首选', '大货折扣', '时效保证'] },
+            { id: 3, name: 'FedEx-亚太电商专递', category: 'express', icon: 'fa-shipping-fast', color: '#4D148C', desc: '亚太网络发达，适合跨境电商卖家', price: 40, unit: '/kg起', features: ['亚太强网', '电商专享', '周末派送'] },
+            { id: 4, name: '中美空运专线-DDP', category: 'airline', icon: 'fa-plane-departure', color: '#00A0DC', desc: '中美直飞，包税包清，5-7个工作日', price: 26, unit: '/kg', features: ['直飞不转机', '双清包税', 'DDP到门'] },
+            { id: 5, name: '中欧空运专线-FBA头程', category: 'airline', icon: 'fa-plane-arrival', color: '#1890FF', desc: '欧洲主要国家，FBA仓库直达', price: 30, unit: '/kg', features: ['欧洲多国', 'FBA入仓', '包税到门'] },
+            { id: 6, name: '中欧铁路-班列快运', category: 'rail', icon: 'fa-train', color: '#52c41a', desc: '一带一路中欧班列，15-18天到达', price: 16, unit: '/kg', features: ['班列稳定', '比海运快', '比空运省'] },
+            { id: 7, name: '中俄铁路-全境可达', category: 'rail', icon: 'fa-subway', color: '#722ed1', desc: '俄罗斯全境，莫斯科为转运枢纽', price: 14, unit: '/kg', features: ['俄罗斯全境', '清关专业', '俄语服务'] },
+            { id: 8, name: '中美海运-美森快船', category: 'sealine', icon: 'fa-ship', color: '#13c2c2', desc: '美森快船准点率最高，15-20天到达美西', price: 10, unit: '/kg', features: ['美森快船', '准点率高', '快于普通海运'] },
+            { id: 9, name: '中欧海运-FBA海卡派', category: 'sealine', icon: 'fa-anchor', color: '#fa8c16', desc: 'FBA头程海卡派送，30-40天到欧洲', price: 7, unit: '/kg', features: ['FBA头程', '海卡派送', '双清包税'] },
+            { id: 10, name: '速卖通无忧物流-标准', category: 'small', icon: 'fa-envelope-open', color: '#eb2f96', desc: '速卖通官方合作，一键下单发货', price: 80, unit: '/单起', features: ['官方合作', '一键下单', '线上跟踪'] },
+            { id: 11, name: 'SGL全球小包挂号', category: 'small', icon: 'fa-envelope', color: '#faad14', desc: '全球可达，超低价格，丢失有赔', price: 4, unit: '/单', features: ['全球可达', '超低价', '挂号可查'] },
+            { id: 12, name: '美国海外仓-仓储配送', category: 'warehouse', icon: 'fa-warehouse', color: '#595959', desc: '美西/美东/美中仓，一件代发', price: 0.01, unit: '/件/天', features: ['多仓布局', '一件代发', '退换处理'] },
+        ];
+
+        // ========== 页面切换 ==========
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const pageId = this.dataset.page;
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(pageId).classList.add('active');
+                if (pageId === 'products') renderProducts(productsData);
+                if (pageId === 'shop') renderShopGrid(shopProductsData);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // ========== 首页渲染 ==========
+        function renderHotRoutes() {
+            const container = document.getElementById('hotRoutes');
+            container.innerHTML = hotRoutesData.map(r => `
+                <div class="route-card" onclick="goToQuote('${r.channel}')">
+                    <div class="route-header">
+                        <div class="route-path">${r.from}<i class="fas fa-arrow-right route-arrow"></i>${r.to}</div>
+                        ${r.badge ? `<span class="route-badge ${r.badge}">${r.badgeText}</span>` : ''}
+                    </div>
+                    <div class="route-details">
+                        <div class="route-detail-item"><i class="fas fa-route"></i>${r.channel}</div>
+                        <div class="route-detail-item"><i class="fas fa-clock"></i>${r.time}</div>
+                        <div class="route-detail-item"><i class="fas fa-shield-alt"></i>双清包税</div>
+                        <div class="route-detail-item"><i class="fas fa-map-marker-alt"></i>全程追踪</div>
+                    </div>
+                    <div class="route-price">
+                        <span class="price-value">¥${r.price}<small>${r.unit}</small></span>
+                        <button class="quote-btn"><i class="fas fa-angle-double-right"></i> 查看详情</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRecommendedServices() {
+            const container = document.getElementById('recommendedServices');
+            const recs = [
+                { icon: 'fa-bolt', title: '即时报价', desc: '在线获取多渠道运费对比', color: '#1890ff' },
+                { icon: 'fa-hand-holding-usd', title: '一口价服务', desc: '无隐藏费用，价格透明', color: '#52c41a' },
+                { icon: 'fa-mobile-alt', title: '随时下单', desc: '手机电脑随时随地操作', color: '#722ed1' },
+                { icon: 'fa-headset', title: '专属客服', desc: '一对一物流顾问服务', color: '#faad14' },
+            ];
+            container.innerHTML = recs.map(r => `
+                <div class="route-card">
+                    <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+                        <div style="width:48px;height:48px;background:${r.color}15;border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                            <i class="fas ${r.icon}" style="font-size:22px;color:${r.color};"></i>
+                        </div>
+                        <h3 style="margin:0;font-size:18px;">${r.title}</h3>
+                    </div>
+                    <p style="color:var(--text-secondary);font-size:14px;">${r.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        // ========== 产品查询 ==========
+        function filterProducts() {
+            let results = [...productsData];
+            const type = document.getElementById('filterType').value;
+            const origin = document.getElementById('filterOrigin').value;
+            const dest = document.getElementById('filterDest').value;
+            const time = document.getElementById('filterTime').value;
+            if (type) results = results.filter(p => p.tag === type || (type==='small' && p.tag==='small'));
+            if (origin) results = results.filter(p => p.origin === origin);
+            if (time) results = results.filter(p => p.timeRange.includes(time.split('-')[0]));
+            renderProducts(results);
+        }
+
+        function renderProducts(list) {
+            const container = document.getElementById('productList');
+            if (!list.length) {
+                container.innerHTML = '<div style="text-align:center;padding:60px;color:#999;"><i class="fas fa-inbox" style="font-size:48px;display:block;margin-bottom:12px;opacity:0.3;"></i><p>没有找到匹配的产品</p></div>';
+                return;
+            }
+            container.innerHTML = list.map(p => `
+                <div class="product-item">
+                    <div class="product-info">
+                        <h3>${p.name}</h3>
+                        <div style="margin-top:8px;">
+                            ${p.tags.map(t => `<span class="product-tag">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="product-features">
+                        ${p.features.map(f => `<div class="feature-item"><i class="fas fa-check-circle"></i>${f}</div>`).join('')}
+                    </div>
+                    <div class="product-price-section">
+                        <div class="product-price">¥${p.basePrice}${p.isPerGram ? '/g' : '/kg'}<small> 起</small></div>
+                        <div class="product-product-price-unit">${p.timeRange}</div>
+                        <div class="product-actions">
+                            <button class="btn-primary" onclick="goToQuote('${p.name}')">立即报价</button>
+                            <button class="btn-primary" style="background:var(--success);" onclick="buyProduct(${p.id})">购买</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ========== 报价计算 ==========
+        function calculateQuote() {
+            const channel = document.getElementById('qChannel').value;
+            const weight = parseFloat(document.getElementById('qWeight').value);
+            const dest = document.getElementById('qDest').value;
+
+            if (!channel || !weight || !dest) {
+                showToast('请填写完整的报价信息'); return;
+            }
+
+            const channelNames = {
+                dhl: 'DHL国际快递', ups: 'UPS国际快递', fedex: 'FedEx联邦快递',
+                emsems: 'EMS/ePacket', 'air-us': '中美空运专线', 'air-eu': '中欧空运专线',
+                'sea-us': '中美海运专线', 'sea-eu': '中欧海运专线', rail: '中欧铁路快线', small: '小包专线'
+            };
+            const destNames = { us:'美国', uk:'英国', de:'德国', fr:'法国', jp:'日本', kr:'韩国', au:'澳洲', ca:'加拿大', sg:'新加坡', th:'泰国', vn:'越南' };
+
+            const baseRates = { dhl:45, ups:42, fedex:43, emsems:70, 'air-us':28, 'air-eu':32, 'sea-us':6, 'sea-eu':8, rail:18, small:4 };
+            const rate = baseRates[channel] || 25;
+            const volWeight = getVolumetricWeight();
+            const chargeWeight = Math.max(weight, volWeight);
+            const freight = chargeWeight * rate;
+            const fuelSurcharge = freight * 0.18;
+            const handlingFee = Math.max(weight * 2, 15);
+            const total = freight + fuelSurcharge + handlingFee;
+
+            const options = [
+                { name: `${channelNames[channel]} - 标准服务`, price: total.toFixed(0), time: getTimeEstimate(channel), details: [`计费重量: ${chargeWeight.toFixed(1)}kg`, `基础运费: ¥${freight.toFixed(0)}`, `燃油附加费: ¥${fuelSurcharge.toFixed(0)}`, `操作费: ¥${handlingFee.toFixed(0)}`] },
+                { name: `${channelNames[channel]} - 经济服务`, price: (total*0.85).toFixed(0), time: getTimeEstimate(channel, true), details: [`计费重量: ${chargeWeight.toFixed(1)}kg`, '经济模式: 时效延长3-5天', '适用: 非紧急货物', `节省: ¥${(total*0.15).toFixed(0)}`] },
+            ];
+
+            document.getElementById('quoteResultContent').innerHTML = `
+                <div style="background:#f0f7ff;padding:16px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+                    <div><strong>路线:</strong> 中国 → ${destNames[dest]||dest}</div>
+                    <div><strong>渠道:</strong> ${channelNames[channel]}</div>
+                    <div><strong>实重:</strong> ${weight}kg</div>
+                    ${volWeight > weight ? `<div style="color:var(--warning);"><strong>体积重:</strong> ${volWeight.toFixed(1)}kg</div>` : ''}
+                </div>
+                ${options.map((opt,i) => `
+                    <div class="quote-option ${i===0?'selected':''}" onclick="selectOption(this)">
+                        <div class="option-header">
+                            <span class="option-name">${opt.name}</span>
+                            <span class="option-price">¥${opt.price}</span>
+                        </div>
+                        <div class="option-details">${opt.details.map(d=>`<span>${d}</span>`).join('')}</div>
+                    </div>
+                `).join('')}
+                <div style="margin-top:16px;text-align:right;">
+                    <button class="btn-success" style="padding:10px 32px;font-size:15px;" onclick="showToast('订单功能开发中，请联系客服下单')"><i class="fas fa-shopping-cart"></i> 选此方案下单</button>
+                </div>
+            `;
+        }
+
+        function getVolumetricWeight() {
+            const l = parseFloat(document.getElementById('qLength').value)||0;
+            const w = parseFloat(document.getElementById('qWidth').value)||0;
+            const h = parseFloat(document.getElementById('qHeight').value)||0;
+            return l*w*h > 0 ? (l*w*h)/5000 : 0;
+        }
+
+        function getTimeEstimate(channel, slow=false) {
+            const times = { dhl:'3-5天', ups:'3-5天', fedex:'3-5天', emsems:'7-15天', 'air-us':'5-7天', 'air-eu':'7-10天', 'sea-us':'25-35天', 'sea-eu':'30-40天', rail:'15-18天', small:'7-20天' };
+            return slow ? times[channel].replace(/(\d+)/g,m=>parseInt(m)+(channel.startsWith('sea')?5:(channel==='rail'?3:2)))+'+' : times[channel];
+        }
+
+        function selectOption(el) {
+            document.querySelectorAll('.quote-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        // ========== 商城购买 ==========
+        function filterShop(el, cat) {
+            document.querySelectorAll('.category-list li').forEach(li => li.classList.remove('active'));
+            el.classList.add('active');
+            const filtered = cat === 'all' ? shopProductsData : shopProductsData.filter(p => p.category === cat);
+            renderShopGrid(filtered);
+        }
+
+        function renderShopGrid(list) {
+            document.getElementById('shopGrid').innerHTML = list.map(p => `
+                <div class="shop-card">
+                    <div class="shop-card-img" style="background:linear-gradient(135deg, ${p.color}, ${p.color}88);">
+                        <i class="fas ${p.icon}"></i>
+                    </div>
+                    <div class="shop-card-body">
+                        <h3>${p.name}</h3>
+                        <p class="shop-card-desc">${p.desc}</p>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+                            ${p.features.map(f => `<span class="product-tag" style="font-size:11px;">${f}</span>`).join('')}
+                        </div>
+                        <div class="shop-card-footer">
+                            <span class="shop-price">¥${p.price}<small style="font-size:13px;">${p.unit}</small></span>
+                            <button class="buy-btn" onclick="buyProduct(${p.id})"><i class="fas fa-cart-plus"></i> 购买</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ========== 弹窗 ==========
+        let currentProductId = null;
+
+        function buyProduct(id) {
+            currentProductId = id;
+            const product = [...shopProductsData, ...productsData].find(p => p.id === id) || shopProductsData[0];
+            document.getElementById('orderProductInfo').innerHTML = `<h3 style="margin:0 0 8px;">${product.name || product.name}</h3><p style="color:var(--text-secondary);margin:0;font-size:14px;">单价: ¥${product.price || product.basePrice}${product.unit || product.unit || (product.isPerGram ? '/g' : '/kg')}</p>`;
+            document.getElementById('orderModal').classList.add('show');
+        }
+
+        function closeOrderModal() { document.getElementById('orderModal').classList.remove('show'); }
+
+        function submitOrder() {
+            const contact = document.getElementById('oContact').value.trim();
+            const phone = document.getElementById('oPhone').value.trim();
+            if (!contact || !phone) { showToast('请填写联系人及电话'); return; }
+            showToast('订单提交成功！我们的客服将尽快联系您确认。');
+            closeOrderModal();
+        }
+
+        function showLogin() { document.getElementById('loginModal').classList.add('show'); }
+        function closeLoginModal() { document.getElementById('loginModal').classList.remove('show'); }
+        function doLogin() { showToast('登录功能即将上线，敬请期待！'); closeLoginModal(); }
+
+        // ========== 工具函数 ==========
+        function goToQuote(name) {
+            document.querySelector('[data-page="quote"]').click();
+            if (name) document.getElementById('qChannel').querySelector(`option:nth-child(n+2)`).selected && 
+                [...document.getElementById('qChannel').options].some(o => o.text.includes(name.replace(/[中美欧英日韩空海运快递]/g,'')) && (o.selected=true));
+        }
+
+        function quickSearch() {
+            document.querySelector('[data-page="products"]').click();
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2500);
+        }
+
+        // ========== 初始化 ==========
+        renderHotRoutes();
+        renderRecommendedServices();
+    </script>
 </body>
 </html>
