@@ -44,14 +44,20 @@ jobs:
         with:
           node-version: "18.x"
           cache: 'npm'
-          
+          cache-dependency-path: frontend/package-lock.json
+        
       - name: Setup Pages
         uses: actions/configure-pages@v4
         
       - name: Install dependencies
         run: |
           cd frontend
-          npm ci
+          # 如果package-lock.json不存在，先创建它
+          if [ ! -f package-lock.json ]; then
+            npm install --no-save
+          else
+            npm ci
+          fi
           
       - name: Create environment file
         run: |
