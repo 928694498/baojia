@@ -1,0 +1,162 @@
+name: Deploy to GitHub Pages
+
+on:
+  # 在main分支有push时触发
+  push:
+    branches: ["main"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/deploy-github-pages.yml"
+  
+  # 手动触发部署
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Deployment version (optional)'
+        required: false
+        default: 'latest'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+          
+      - name: Create environment file
+        run: |
+          cd frontend
+          cat > .env.production << 'EOF'
+          VITE_API_URL=https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}/api
+          VITE_APP_TITLE=跨境物流管理系统
+          VITE_APP_VERSION=${{ github.ref_name }}
+          EOF
+          
+      - name: Build application
+        run: |
+          cd frontend
+          npm run build
+        env:
+          NODE_ENV: production
+          
+      - name: Generate Sitemap
+        run: |
+          cd frontend
+          cat > dist/sitemap.xml << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+            <url>
+              <loc>https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}/</loc>
+              <lastmod>${{ github.event.repository.updated_at }}</lastmod>
+              <changefreq>daily</changefreq>
+              <priority>1.0</priority>
+            </url>
+            <url>
+              <loc>https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}/dashboard</loc>
+              <priority>0.8</priority>
+            </url>
+            <url>
+              <loc>https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}/products</loc>
+              <priority>0.8</priority>
+            </url>
+            <url>
+              <loc>https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}/quotes</loc>
+              <priority>0.8</priority>
+            </url>
+            <url>
+              <loc>https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}/sales</loc>
+              <priority>0.8</priority>
+            </url>
+          </urlset>
+          EOF
+          
+      - name: Create CNAME for custom domain (optional)
+        run: |
+          if [ -n "${{ secrets.CUSTOM_DOMAIN }}" ]; then
+            echo "${{ secrets.CUSTOM_DOMAIN }}" > frontend/dist/CNAME
+          fi
+          
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        
+      - name: Update deployment status
+        if: success()
+        run: |
+          echo "✅ Successfully deployed to GitHub Pages!"
+          echo "URL: ${{ steps.deployment.outputs.page_url }}"
+          
+      - name: Create deployment badge
+        run: |
+          echo "![GitHub Pages](https://github.com/${{ github.repository }}/actions/workflows/deploy-github-pages.yml/badge.svg)" > frontend/dist/badge.svg
+          
+  # 创建GitHub Releases
+  create-release:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Generate release notes
+        run: |
+          echo "# 版本 ${{ github.ref_name }}" > release-notes.md
+          echo "" >> release-notes.md
+          echo "## 更新内容" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "部署时间: $(date '+%Y-%m-%d %H:%M:%S')" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "访问地址: https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}" >> release-notes.md
+          echo "" >> release-notes.md
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.ref_name }}
+          name: 跨境物流管理系统 v${{ github.ref_name }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,217 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.json'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.json'
+
+jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        
+    - name: Run npm audit
+      run: |
+        cd frontend && npm audit --audit-level=moderate
+        cd ../backend && npm audit --audit-level=moderate
+      continue-on-error: true
+      
+    - name: Run Snyk Security Scan
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high
+      continue-on-error: true
+      
+    - name: Run TruffleHog for secrets scanning
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: ${{ github.event.pull_request.base.sha || github.sha }}
+        head: ${{ github.sha }}
+        
+    - name: Run CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        languages: javascript, typescript
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: high
+        comment-summary-in-pr: true
+
+  code-coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd frontend && npm ci
+        cd ../backend && npm ci
+        
+    - name: Run tests with coverage
+      run: |
+        cd frontend && npm test -- --coverage --coverageReporters=lcov
+        cd ../backend && npm test -- --coverage --coverageReporters=lcov
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./frontend/coverage/lcov.info,./backend/coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+
+  performance-test:
+    name: Performance Test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        
+    - name: Build application
+      run: |
+        cd frontend && npm ci && npm run build
+        cd ../backend && npm ci && npm run build
+        
+    - name: Start backend server
+      run: |
+        cd backend
+        npm start &
+        sleep 10
+        
+    - name: Run Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        configPath: './.github/lighthouserc.json'
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+        
+    - name: Run load test
+      uses: andrcmdr/k6-action@v0.2.0
+      with:
+        filename: ./tests/load-test.js
+        flags: --vus 10 --duration 30s
+      env:
+        BASE_URL: http://localhost:3000
+
+  # 代码复杂度分析
+  complexity-analysis:
+    name: Complexity Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        
+    - name: Install plato
+      run: npm install -g plato
+        
+    - name: Run complexity analysis
+      run: |
+        plato -r -d ./reports/complexity -t "Cross-border Logistics System" -l .jshintrc ./frontend/src ./backend/src
+        
+    - name: Upload complexity report
+      uses: actions/upload-artifact@v4
+      with:
+        name: complexity-report
+        path: ./reports/complexity
+        retention-days: 30
+
+  # SonarQube分析
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd frontend && npm ci
+        cd ../backend && npm ci
+        
+    - name: Build application
+      run: |
+        cd frontend && npm run build
+        cd ../backend && npm run build
+        
+    - name: Run SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      with:
+        args: >
+          -Dsonar.projectKey=cross-border-logistics
+          -Dsonar.projectName="Cross-border Logistics System"
+          -Dsonar.sources=frontend/src,backend/src
+          -Dsonar.tests=frontend/__tests__,backend/__tests__
+          -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info,backend/coverage/lcov.info
+          -Dsonar.testExecutionReportPaths=frontend/test-report.xml,backend/test-report.xml

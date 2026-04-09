@@ -1,0 +1,301 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        default: 'patch'
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+env:
+  NODE_VERSION: '18.x'
+  DOCKER_REGISTRY: ghcr.io
+  DOCKER_IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # 创建发布版本
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ steps.version.outputs.new_version }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Setup Git
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Get current version
+      id: version
+      uses: philips-software/auto-semver@v1.4.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        release_type: ${{ github.event.inputs.release_type || 'patch' }}
+        
+    - name: Update package versions
+      run: |
+        cd frontend && npm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
+        cd ../backend && npm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
+        
+    - name: Generate changelog
+      uses: requarks/changelog-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ steps.version.outputs.new_version }}
+        
+    - name: Commit version changes
+      run: |
+        git add .
+        git commit -m "chore: release v${{ steps.version.outputs.new_version }}"
+        git push origin main
+        
+    - name: Create Git tag
+      run: |
+        git tag -a v${{ steps.version.outputs.new_version }} -m "Release v${{ steps.version.outputs.new_version }}"
+        git push origin v${{ steps.version.outputs.new_version }}
+        
+    - name: Create GitHub Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.version.outputs.new_version }}
+        name: Release v${{ steps.version.outputs.new_version }}
+        body: ${{ steps.generate_changelog.outputs.changelog }}
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        files: |
+          ./frontend/package.json
+          ./backend/package.json
+          ./CHANGELOG.md
+
+  # 构建发布镜像
+  build-release-images:
+    name: Build Release Images
+    runs-on: ubuntu-latest
+    needs: create-release
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: v${{ needs.create-release.outputs.release_version }}
+        
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.DOCKER_REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: |
+          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}-frontend
+          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}-backend
+          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}-wechat-bot
+        tags: |
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=raw,value=latest
+          type=raw,value=stable
+          type=sha
+        
+    - name: Build and push frontend image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./docker/frontend.Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        provenance: false
+        
+    - name: Build and push backend image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./docker/backend.Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        provenance: false
+        
+    - name: Build and push wechat-bot image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./docker/wechat-bot.Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        provenance: false
+
+  # 部署到生产环境
+  deploy-release:
+    name: Deploy Release
+    runs-on: ubuntu-latest
+    needs: build-release-images
+    environment:
+      name: production
+      url: https://logistics.example.com
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: v${{ needs.create-release.outputs.release_version }}
+        
+    - name: Update Kubernetes manifests with new image tags
+      run: |
+        sed -i "s|image: .*/${{ env.DOCKER_IMAGE_NAME }}-frontend:.*|image: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}-frontend:v${{ needs.create-release.outputs.release_version }}|g" kubernetes/production/frontend-deployment.yaml
+        sed -i "s|image: .*/${{ env.DOCKER_IMAGE_NAME }}-backend:.*|image: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}-backend:v${{ needs.create-release.outputs.release_version }}|g" kubernetes/production/backend-deployment.yaml
+        sed -i "s|image: .*/${{ env.DOCKER_IMAGE_NAME }}-wechat-bot:.*|image: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}-wechat-bot:v${{ needs.create-release.outputs.release_version }}|g" kubernetes/production/wechat-bot-deployment.yaml
+        
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl apply -f kubernetes/production/
+        kubectl rollout status deployment/frontend -n logistics-production --timeout=300s
+        kubectl rollout status deployment/backend -n logistics-production --timeout=300s
+        kubectl rollout status deployment/wechat-bot -n logistics-production --timeout=300s
+      env:
+        KUBECONFIG: ${{ secrets.KUBECONFIG_PRODUCTION }}
+        
+    - name: Verify deployment
+      run: |
+        # 等待服务就绪
+        sleep 30
+        curl -f https://logistics.example.com/health || exit 1
+        curl -f https://logistics.example.com/api/health || exit 1
+        
+    - name: Run post-deployment tests
+      run: |
+        npm run test:post-deployment -- --url=https://logistics.example.com
+        
+    - name: Notify release success
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        channel: '#releases'
+        author_name: GitHub Actions
+        fields: repo,commit,message,author,action,eventName,ref,workflow
+        text: |
+          :rocket: Release v${{ needs.create-release.outputs.release_version }} deployed successfully!
+          
+          Changes:
+          ${{ steps.generate_changelog.outputs.changelog }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # 发布到包管理器
+  publish-packages:
+    name: Publish Packages
+    runs-on: ubuntu-latest
+    needs: create-release
+    if: false  # 暂时禁用，需要时启用
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: v${{ needs.create-release.outputs.release_version }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        registry-url: 'https://registry.npmjs.org/'
+        
+    - name: Publish frontend shared packages
+      run: |
+        cd frontend
+        npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        
+    - name: Publish backend shared packages
+      run: |
+        cd backend
+        npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # 文档更新
+  update-documentation:
+    name: Update Documentation
+    runs-on: ubuntu-latest
+    needs: create-release
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: v${{ needs.create-release.outputs.release_version }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        
+    - name: Generate API documentation
+      run: |
+        cd backend && npm run docs:generate
+        
+    - name: Deploy documentation
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
+        destination_dir: ./v${{ needs.create-release.outputs.release_version }}
+        keep_files: true
+        
+    - name: Update documentation index
+      run: |
+        echo "# Documentation Versions" > docs/index.md
+        echo "" >> docs/index.md
+        echo "## Latest: v${{ needs.create-release.outputs.release_version }}" >> docs/index.md
+        echo "- [API Documentation](./v${{ needs.create-release.outputs.release_version }}/api)" >> docs/index.md
+        echo "- [User Guide](./v${{ needs.create-release.outputs.release_version }}/guide)" >> docs/index.md
+        echo "" >> docs/index.md
+        echo "## Previous Versions" >> docs/index.md
+        # 这里可以添加历史版本链接

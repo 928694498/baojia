@@ -1,0 +1,91 @@
+{
+  "name": "cross-border-logistics-wechat-bot",
+  "version": "1.0.0",
+  "description": "Enterprise WeChat bot for cross-border logistics system",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "test": "jest --config jest.config.json",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist coverage",
+    "prebuild": "npm run clean",
+    "docker:build": "docker build -t cross-border-logistics-wechat-bot .",
+    "docker:run": "docker run -p 3002:3002 cross-border-logistics-wechat-bot"
+  },
+  "keywords": [
+    "wechat",
+    "enterprise-wechat",
+    "chatbot",
+    "logistics",
+    "cross-border"
+  ],
+  "author": "Cross-border Logistics Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.5.0",
+    "xml2js": "^0.5.0",
+    "crypto": "^1.0.1",
+    "wework-api": "^1.0.0",
+    "wechat-crypto": "^1.0.0",
+    "node-cache": "^5.1.2",
+    "winston": "^3.10.0",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "compression": "^1.7.4",
+    "express-rate-limit": "^6.10.0",
+    "joi": "^17.9.2",
+    "date-fns": "^2.30.0",
+    "lodash": "^4.17.21",
+    "uuid": "^9.0.0",
+    "redis": "^4.6.8",
+    "ioredis": "^5.3.2",
+    "bull": "^4.11.2",
+    "bull-board": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.0",
+    "@types/express": "^4.17.17",
+    "@types/xml2js": "^0.4.11",
+    "@types/crypto-js": "^4.1.1",
+    "@types/lodash": "^4.14.197",
+    "@types/uuid": "^9.0.2",
+    "@types/jest": "^29.5.4",
+    "@types/supertest": "^2.0.12",
+    "typescript": "^5.2.2",
+    "ts-node": "^10.9.1",
+    "nodemon": "^3.0.1",
+    "eslint": "^8.47.0",
+    "@typescript-eslint/eslint-plugin": "^6.4.0",
+    "@typescript-eslint/parser": "^6.4.0",
+    "prettier": "^3.0.2",
+    "jest": "^29.6.4",
+    "ts-jest": "^29.1.1",
+    "supertest": "^6.3.3",
+    "faker": "^5.5.3",
+    "cross-env": "^7.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/cross-border-logistics.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/cross-border-logistics/issues"
+  },
+  "homepage": "https://github.com/your-org/cross-border-logistics#readme"
+}
